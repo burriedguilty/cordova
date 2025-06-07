@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+  background-color: black;
+  color: white;
+  font-family: var(--font-vt323), monospace;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Typewriter effect - simpler approach */
+.typewriter-1 {
+  overflow: hidden;
+  border-right: .15em solid white;
+  white-space: nowrap;
+  margin: 0 auto;
+  letter-spacing: .1em;
+  width: 0;
+  animation: 
+    typing 2.5s steps(40, end) forwards,
+    blink-caret .75s step-end 8;
+}
+
+.typewriter-2 {
+  overflow: hidden;
+  border-right: .15em solid white;
+  white-space: nowrap;
+  margin: 0 auto;
+  letter-spacing: .1em;
+  width: 0;
+  opacity: 0;
+  animation: 
+    typing 3s steps(40, end) forwards,
+    blink-caret .75s step-end 8;
+  animation-delay: 3s;
+}
+
+.typewriter-2 {
+  animation-name: typing, blink-caret, fadeIn;
+  animation-duration: 3s, .75s, 0.1s;
+  animation-timing-function: steps(40, end), step-end, ease;
+  animation-iteration-count: 1, 8, 1;
+  animation-fill-mode: forwards, none, forwards;
+  animation-delay: 3s, 3s, 3s;
+}
+
+/* Paragraph typewriter effect - line by line approach */
+.typewriter-paragraph {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  border-right: 0.15em solid white;
+  animation: 
+    typing 2.5s steps(30, end) forwards,
+    blink-cursor 0.75s step-end 6,
+    hide-cursor 0.1s forwards;
+  animation-delay: 0s, 0s, 2.5s;
+  max-width: 100%;
+}
+
+/* Second line */
+div:nth-child(2) .typewriter-paragraph {
+  animation-duration: 2.5s, 0.75s;
+  animation-delay: 0s, 0s;
+}
+
+/* Third line */
+div:nth-child(3) .typewriter-paragraph {
+  animation-duration: 2.5s, 0.75s;
+  animation-delay: 0s, 0s;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink-cursor {
+  from, to { border-color: transparent }
+  50% { border-color: white }
+}
+
+@keyframes hide-cursor {
+  to { border-right-color: transparent }
+}
+
+/* Hide cursor after animation completes */
+.typewriter-paragraph.typing-done {
+  border-right-color: transparent;
+}
+
+/* Animations */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: white; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+}
+
+/* Three.js light streak effect is now used instead of CSS */
