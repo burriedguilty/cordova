@@ -102,7 +102,7 @@ const StarsField: React.FC = () => {
 
 const AUTHOR = "by Cordova";
 
-const LINE1 = "Welcome to my creative space.";
+const LINE1 = "Cordova's portfolio here";
 const LINE2 = "Here you'll find a selection of my works.";
 const LINE3 = "Digital experiments and portfolio projects.";
 
@@ -171,8 +171,8 @@ const WelcomeSection = () => {
           
           {/* Center: Website Name with Glitch Effect */}
           <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white tracking-widest text-center mx-auto pt-1 md:pt-0">
-            <span className="hidden xs:inline" style={{ animation: 'glitch 2s infinite' }}>Welcome to my</span>
-            <span className="xs:hidden" style={{ animation: 'glitch 2s infinite' }}>Welcome to</span>
+            <span className="hidden xs:inline" style={{ animation: 'glitch 2s infinite' }}>Cordova's</span>
+            <span className="xs:hidden" style={{ animation: 'glitch 2s infinite' }}>Cordova's</span>
             {' '}
             <span style={{
               animation: 'glitchText 3s infinite',
@@ -180,7 +180,7 @@ const WelcomeSection = () => {
               letterSpacing: '0.1em',
               textShadow: '0.05em 0 0 #ff00ff, -0.05em -0.025em 0 #00ffff',
             }}>
-              ARTFOLIO
+              Art Gallery
             </span>
           </div>
           
