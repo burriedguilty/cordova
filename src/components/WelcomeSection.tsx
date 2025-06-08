@@ -6,6 +6,58 @@ import { motion, AnimatePresence } from "framer-motion";
 import styles from "../styles/RetroGrid.module.css";
 import ScrollFadeSection from "./ScrollFadeSection";
 
+// Add glitch effect keyframes to the component
+const glitchKeyframes = `
+@keyframes glitch {
+  0% {
+    text-shadow: 0.05em 0 0 #ff00ff, -0.05em -0.025em 0 #00ffff;
+    transform: translate(0);
+  }
+  14% {
+    text-shadow: 0.05em 0 0 #ff00ff, -0.05em -0.025em 0 #00ffff;
+  }
+  15% {
+    text-shadow: -0.05em -0.025em 0 #ff00ff, 0.025em 0.025em 0 #00ffff;
+  }
+  49% {
+    text-shadow: -0.05em -0.025em 0 #ff00ff, 0.025em 0.025em 0 #00ffff;
+  }
+  50% {
+    text-shadow: 0.025em 0.05em 0 #ff00ff, 0.05em 0 0 #00ffff;
+    transform: translate(0);
+  }
+  99% {
+    text-shadow: 0.025em 0.05em 0 #ff00ff, 0.05em 0 0 #00ffff;
+    transform: translate(0);
+  }
+  100% {
+    text-shadow: -0.025em 0 0 #ff00ff, -0.025em -0.025em 0 #00ffff;
+    transform: translate(0);
+  }
+}
+
+@keyframes glitchText {
+  0% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  83% {
+    opacity: 0;
+  }
+  85% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 0;
+  }
+  95% {
+    opacity: 1;
+  }
+}
+`;
+
 // Komponen untuk menangani bintang-bintang dinamis dengan aman
 const StarsField: React.FC = () => {
   const [stars, setStars] = useState<React.ReactNode[]>([]);
@@ -49,8 +101,16 @@ const StarsField: React.FC = () => {
 
 
 
-const WEBSITE_NAME = "PORTFOLIO SITE";
-const AUTHOR = "by John Doe";
+const WEBSITE_NAME = "Welcome to my ARTFOLIO";
+const AUTHOR = "by Cordova";
+
+// CSS for glitch effect
+const glitchStyle = {
+  position: 'relative',
+  animation: 'glitch 1s linear infinite',
+  textShadow: '2px 0 0 #ff00ff, -2px 0 0 #00ffff',
+  overflow: 'hidden',
+} as React.CSSProperties;
 
 const LINE1 = "Welcome to my creative space.";
 const LINE2 = "Here you'll find a selection of my works.";
@@ -68,6 +128,17 @@ const WelcomeSection = () => {
   const [line2Done, setLine2Done] = useState(false);
   const [line3Done, setLine3Done] = useState(false);
   const [authorVisible, setAuthorVisible] = useState(false);
+  
+  // Add the glitch effect styles to the document head
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = glitchKeyframes;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
   
   useEffect(() => {
     // Line 1 finishes typing (2.5s)
@@ -98,88 +169,73 @@ const WelcomeSection = () => {
       </div>
       
       {/* Top Bar */}
-      <div className="absolute top-0 left-0 w-full flex items-center justify-between px-8 py-6 z-10">
-        {/* Mini Icon */}
-        <div className="flex items-center">
-          <video
-            src="/logocorner.webm"
-            autoPlay
-            loop
-            muted
-            playsInline
-            width={96}
-            height={96}
-            className="rounded select-none pointer-events-none"
-            aria-label="Logo animation"
-            tabIndex={-1}
-            draggable={false}
-            onContextMenu={e => e.preventDefault()}
-          />
-        </div>
-        {/* Website Name */}
-        <div className="text-xl md:text-2xl font-bold text-white tracking-widest text-center flex-1">
-          {WEBSITE_NAME}
-        </div>
-        {/* Social Button Panel */}
-        <div className="flex items-center justify-end min-w-[40px]">
-          <button
-            aria-label="Open Social Panel"
-            onClick={() => setPanelOpen((v) => !v)}
-            className="rounded-full bg-neutral-900 border border-neutral-700 p-2 hover:bg-neutral-800 transition"
-          >
-            {/* Using a client-only component to avoid hydration issues with browser extensions */}
-            <svg
-              width="24"
-              height="24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              style={{ color: 'white' }}
-              suppressHydrationWarning
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm p-4">
+        <div className="w-full flex items-center justify-between px-4">
+          {/* Left: Logo - Always in left corner */}
+          <div className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] absolute left-2 md:left-4 top-2 md:top-4">
+            <video
+              src="/logocorner.webm"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-contain"
+              aria-label="Logo animation"
+              tabIndex={-1}
+              onContextMenu={e => e.preventDefault()}
+            />
+          </div>
+          
+          {/* Center: Website Name with Glitch Effect */}
+          <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white tracking-widest text-center mx-auto pt-1 md:pt-0">
+            <span className="hidden xs:inline" style={{ animation: 'glitch 2s infinite' }}>Welcome to my</span>
+            <span className="xs:hidden" style={{ animation: 'glitch 2s infinite' }}>Welcome to</span>
+            {' '}
+            <span style={{
+              animation: 'glitchText 3s infinite',
+              fontWeight: 'bold',
+              letterSpacing: '0.1em',
+              textShadow: '0.05em 0 0 #ff00ff, -0.05em -0.025em 0 #00ffff',
+            }}>
+              ARTFOLIO
+            </span>
+          </div>
+          
+          {/* Right: Social Button - Always in right corner */}
+          <div className="w-[36px] md:w-[40px] absolute right-2 md:right-4 top-2 md:top-4">
+            <a
+              href="https://x.com/cordovaxyz"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Visit Cordova on X (Twitter)"
+              className="rounded-full bg-neutral-900 border border-neutral-700 p-1.5 md:p-2 hover:bg-neutral-800 transition flex items-center justify-center"
             >
-              <circle cx="12" cy="12" r="10" />
-              <circle cx="12" cy="8" r="1" />
-              <circle cx="12" cy="16" r="1" />
-              <circle cx="12" cy="12" r="1" />
-            </svg>
-          </button>
-          <AnimatePresence>
-            {panelOpen && (
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 50 }}
-                transition={{ duration: 0.25 }}
-                className="absolute top-16 right-8 bg-neutral-900 border border-neutral-700 rounded-lg shadow-lg p-4 flex flex-col gap-3 z-20"
+              {/* X (Twitter) SVG Icon */}
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                style={{ color: 'white' }}
+                suppressHydrationWarning
               >
-                {socials.map((s) => (
-                  <a
-                    key={s.name}
-                    href={s.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-white hover:text-blue-400 transition"
-                  >
-                    <Image src={s.icon} alt={s.name} width={20} height={20} />
-                    {s.name}
-                  </a>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+          </div>
         </div>
-      </div>
-      {/* Center Content */}
+      </header>
+      
+      {/* Center Content - Optimized for mobile */}
       <ScrollFadeSection fadeOutThreshold={10} fadeOutSpeed={3}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex flex-col items-center justify-center text-center px-4 relative z-10"
+          className="flex flex-col items-center justify-center text-center px-4 md:px-6 relative z-10 mt-16 sm:mt-20 md:mt-0"
         >
-          <div className="max-w-2xl w-full">
-            <div className="text-3xl md:text-4xl font-bold text-white drop-shadow-[0_4px_8px_rgba(255,255,255,0.25)] mb-8 leading-relaxed flex flex-col gap-1">
+          <div className="max-w-xs sm:max-w-sm md:max-w-xl lg:max-w-2xl w-full">
+            <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white drop-shadow-[0_4px_8px_rgba(255,255,255,0.25)] mb-4 md:mb-8 leading-relaxed flex flex-col gap-1">
               <div>
                 <span className="typewriter-paragraph">{LINE1}</span>
               </div>
@@ -199,14 +255,12 @@ const WelcomeSection = () => {
           </div>
           
           {authorVisible && (
-            <p className="text-xl text-white font-semibold mt-8 drop-shadow-[0_2px_4px_rgba(255,255,255,0.25)] fade-in">
+            <p className="text-base sm:text-lg md:text-xl text-white font-semibold mt-4 md:mt-8 drop-shadow-[0_2px_4px_rgba(255,255,255,0.25)] fade-in">
               {AUTHOR}
             </p>
           )}
         </motion.div>
       </ScrollFadeSection>
-      
-      {/* Social panel removed to prevent duplication */}
     </section>
   );
 };
