@@ -9,8 +9,8 @@ const vt323 = VT323({
 });
 
 export const metadata: Metadata = {
-  title: "CORDOVA's GALLERY",
-  description: "Cordova's portfolio site featuring digital art and creative projects",
+  title: "CORDOVA\'s GALLERY",
+  description: "Cordova\'s portfolio site featuring digital art and creative projects",
 };
 
 export default function RootLayout({
