@@ -68,41 +68,47 @@ const breakpointColumns = {
   700: 1
 };
 
-// Hook to directly load images from the gallery and recent folders
+// Hook to dynamically load images from the gallery and recent folders
 function useGalleryImages() {
   const [recentItems, setRecentItems] = useState<GalleryItem[]>([]);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Directly define the gallery images from the public folder
-    const galleryImageList = [
-      { src: '/gallery/download.jpeg', title: 'Gallery Image 1' },
-      { src: '/gallery/download (1).jpeg', title: 'Gallery Image 2' },
-      { src: '/gallery/download (2).jpeg', title: 'Gallery Image 3' },
-      { src: '/gallery/download (3).jpeg', title: 'Gallery Image 4' },
-      { src: '/gallery/download (4).jpeg', title: 'Gallery Image 5' },
-      { src: '/gallery/download (5).jpeg', title: 'Gallery Image 6' },
-      { src: '/gallery/images.jpeg', title: 'Gallery Image 7' }
-    ];
+    async function fetchImages() {
+      try {
+        const response = await fetch('/api/gallery');
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch images: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.gallery && Array.isArray(data.gallery)) {
+          setGalleryItems(data.gallery);
+        }
+        
+        if (data.recent && Array.isArray(data.recent)) {
+          setRecentItems(data.recent);
+        }
+      } catch (err) {
+        console.error('Error fetching images:', err);
+        setError('Failed to load images. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    }
     
-    // Directly define the recent images
-    const recentImageList = [
-      { src: '/recent/project1.jpg', title: 'Project 1' },
-      { src: '/recent/project2.jpeg', title: 'Project 2' },
-      { src: '/recent/project3.jpeg', title: 'Project 3' }
-    ];
-    
-    setGalleryItems(galleryImageList);
-    setRecentItems(recentImageList);
-    setLoading(false);
+    fetchImages();
   }, []);
 
-  return { recentItems, galleryItems, loading };
+  return { recentItems, galleryItems, loading, error };
 }
 
 const GallerySection = () => {
-  const { recentItems, galleryItems, loading } = useGalleryImages();
+  const { recentItems, galleryItems, loading, error } = useGalleryImages();
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
   
   // Close modal when pressing escape key
@@ -205,29 +211,38 @@ const GallerySection = () => {
         >
           Past Gallery
         </motion.h2>
-        <Masonry
-          breakpointCols={breakpointColumns}
-          className="flex w-auto -ml-4"
-          columnClassName="pl-4 bg-clip-padding"
-        >
-          {galleryItems.length === 0 && (
-            <div className="text-white">No gallery items found. Add to <code>src/gallery/galleryData.ts</code>.</div>
-          )}
-          {galleryItems.map((item, idx) => (
-            <motion.div
-              key={item.src + idx}
-              className="mb-8 rounded-lg overflow-hidden shadow-lg backdrop-blur-xl bg-white/10 border border-white/20 hover:border-white/30 transition-all duration-300" 
-              style={glassCardStyle}
-              initial={{ opacity: 0, y: 60, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-100px 0px" }}
-              transition={{ 
-                duration: 0.9,
-                ease: [0.25, 1, 0.5, 1], // Custom cubic bezier for smooth, elegant entry
-                delay: 0.15 * idx, // Slightly longer staggered delay for more pronounced effect
-              }}
-              whileHover={{ scale: 1.03 }}
-            >
+        {loading ? (
+          <div className="flex justify-center items-center h-40">
+            <div className="text-white text-xl">Loading gallery images...</div>
+          </div>
+        ) : error ? (
+          <div className="flex justify-center items-center h-40">
+            <div className="text-red-400 text-xl">{error}</div>
+          </div>
+        ) : (
+          <Masonry
+            breakpointCols={breakpointColumns}
+            className="flex w-auto -ml-4"
+            columnClassName="pl-4 bg-clip-padding"
+          >
+            {galleryItems.length === 0 && (
+              <div className="text-white">No gallery images found in the public/gallery directory.</div>
+            )}
+            {galleryItems.map((item, idx) => (
+              <motion.div
+                key={item.src + idx}
+                className="mb-8 rounded-lg overflow-hidden shadow-lg backdrop-blur-xl bg-white/10 border border-white/20 hover:border-white/30 transition-all duration-300" 
+                style={glassCardStyle}
+                initial={{ opacity: 0, y: 60, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-100px 0px" }}
+                transition={{ 
+                  duration: 0.9,
+                  ease: [0.25, 1, 0.5, 1], // Custom cubic bezier for smooth, elegant entry
+                  delay: 0.15 * idx, // Slightly longer staggered delay for more pronounced effect
+                }}
+                whileHover={{ scale: 1.03 }}
+              >
               <div 
                 className="relative w-full h-80 cursor-pointer overflow-hidden rounded-lg"
                 onClick={() => setSelectedImage(item)}
@@ -254,6 +269,7 @@ const GallerySection = () => {
             </motion.div>
           ))}
         </Masonry>
+        )}
       </div>
 
       {/* Full-screen image modal */}
