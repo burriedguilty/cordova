@@ -1,0 +1,32 @@
+.starsContainer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: transparent;
+  z-index: 0;
+}
+
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.star {
+  position: absolute;
+  background-color: rgba(0, 255, 127, 0.9);
+  border-radius: 50%;
+  filter: blur(0.5px);
+  animation: twinkle var(--duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 4px rgba(0, 255, 127, 0.8)); }
+}
+
+
