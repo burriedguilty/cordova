@@ -102,8 +102,8 @@ const StarsField: React.FC = () => {
 
 const AUTHOR = "by Cordova";
 
-const LINE1 = "Cordova&apos;s portfolio here";
-const LINE2 = "Here you&apos;ll find a selection of my works.";
+const LINE1 = "Cordova's portfolio here";
+const LINE2 = "Here you'll find a selection of my works.";
 const LINE3 = "Digital experiments and portfolio projects.";
 
 const WelcomeSection = () => {
@@ -171,8 +171,8 @@ const WelcomeSection = () => {
           
           {/* Center: Website Name with Glitch Effect */}
           <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white tracking-widest text-center mx-auto pt-1 md:pt-0">
-            <span className="hidden xs:inline" style={{ animation: 'glitch 2s infinite' }}>CORDOVA&apos;s</span>
-            <span className="xs:hidden" style={{ animation: 'glitch 2s infinite' }}>CORDOVA&apos;s</span>
+            <span className="hidden xs:inline" style={{ animation: 'glitch 2s infinite' }}>CORDOVA's</span>
+            <span className="xs:hidden" style={{ animation: 'glitch 2s infinite' }}>CORDOVA's</span>
             {' '}
             <span style={{
               animation: 'glitchText 3s infinite',
@@ -220,12 +220,12 @@ const WelcomeSection = () => {
           <div className="max-w-xs sm:max-w-sm md:max-w-xl lg:max-w-2xl w-full">
             <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white drop-shadow-[0_4px_8px_rgba(255,255,255,0.25)] mb-4 md:mb-8 leading-relaxed flex flex-col gap-1">
               <div>
-                <span className="typewriter-paragraph">{LINE1}</span>
+                <span className="typewriter-paragraph">{"Cordova's portfolio here"}</span>
               </div>
               
               {line1Done && (
                 <div>
-                  <span className={`typewriter-paragraph ${line2Done ? 'typing-done' : ''}`}>{LINE2}</span>
+                  <span className={`typewriter-paragraph ${line2Done ? 'typing-done' : ''}`}>{"Here you'll find a selection of my works."}</span>
                 </div>
               )}
               
