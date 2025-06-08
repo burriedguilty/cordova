@@ -114,7 +114,22 @@ const WelcomeSection = () => {
   // Add the glitch effect styles to the document head
   useEffect(() => {
     const styleElement = document.createElement('style');
-    styleElement.innerHTML = glitchKeyframes;
+    styleElement.innerHTML = glitchKeyframes + `
+      /* Mobile text handling */
+      .typewriter-paragraph {
+        display: inline-block;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        max-width: 100%;
+      }
+      
+      .break-words {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        width: 100%;
+      }
+    `;
     document.head.appendChild(styleElement);
     
     return () => {
@@ -214,23 +229,29 @@ const WelcomeSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex flex-col items-center justify-center text-center px-4 md:px-6 relative z-10 mt-16 sm:mt-20 md:mt-0"
+          className="flex flex-col items-center justify-center text-center px-2 sm:px-4 md:px-6 relative z-10 mt-16 sm:mt-20 md:mt-0"
         >
-          <div className="max-w-xs sm:max-w-sm md:max-w-xl lg:max-w-2xl w-full">
-            <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white drop-shadow-[0_4px_8px_rgba(255,255,255,0.25)] mb-4 md:mb-8 leading-relaxed flex flex-col gap-1">
-              <div>
+          <div className="max-w-[280px] xs:max-w-xs sm:max-w-sm md:max-w-xl lg:max-w-2xl w-full">
+            <div className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white drop-shadow-[0_4px_8px_rgba(255,255,255,0.25)] mb-4 md:mb-8 leading-relaxed flex flex-col gap-1">
+              <div className="break-words">
                 <span className="typewriter-paragraph">{"Cordova's portfolio here"}</span>
               </div>
               
               {line1Done && (
-                <div>
-                  <span className={`typewriter-paragraph ${line2Done ? 'typing-done' : ''}`}>{"Here you'll find a selection of my works."}</span>
+                <div className="break-words">
+                  <span className={`typewriter-paragraph ${line2Done ? 'typing-done' : ''}`}>
+                    <span className="hidden xs:inline">{"Here you'll find a selection of my works."}</span>
+                    <span className="xs:hidden">{"Here you'll find my works."}</span>
+                  </span>
                 </div>
               )}
               
               {line2Done && (
-                <div>
-                  <span className={`typewriter-paragraph ${line3Done ? 'typing-done' : ''}`}>{LINE3}</span>
+                <div className="break-words">
+                  <span className={`typewriter-paragraph ${line3Done ? 'typing-done' : ''}`}>
+                    <span className="hidden xs:inline">{LINE3}</span>
+                    <span className="xs:hidden">{"Digital art & portfolio projects."}</span>
+                  </span>
                 </div>
               )}
             </div>
