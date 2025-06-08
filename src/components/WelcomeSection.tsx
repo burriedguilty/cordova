@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import styles from "../styles/RetroGrid.module.css";
 import ScrollFadeSection from "./ScrollFadeSection";
 
@@ -101,29 +100,13 @@ const StarsField: React.FC = () => {
 
 
 
-const WEBSITE_NAME = "Welcome to my ARTFOLIO";
 const AUTHOR = "by Cordova";
-
-// CSS for glitch effect
-const glitchStyle = {
-  position: 'relative',
-  animation: 'glitch 1s linear infinite',
-  textShadow: '2px 0 0 #ff00ff, -2px 0 0 #00ffff',
-  overflow: 'hidden',
-} as React.CSSProperties;
 
 const LINE1 = "Welcome to my creative space.";
 const LINE2 = "Here you'll find a selection of my works.";
 const LINE3 = "Digital experiments and portfolio projects.";
 
-const socials = [
-  { name: "GitHub", url: "https://github.com/", icon: "/globe.svg" },
-  { name: "Twitter", url: "https://twitter.com/", icon: "/window.svg" },
-  { name: "LinkedIn", url: "https://linkedin.com/", icon: "/vercel.svg" }
-];
-
 const WelcomeSection = () => {
-  const [panelOpen, setPanelOpen] = useState(false);
   const [line1Done, setLine1Done] = useState(false);
   const [line2Done, setLine2Done] = useState(false);
   const [line3Done, setLine3Done] = useState(false);
