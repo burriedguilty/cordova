@@ -12,6 +12,7 @@ export interface GalleryItem {
   title: string;
   description?: string;
   link?: string;
+  category?: string;
 }
 
 // Glassmorphism styles for consistent application
@@ -68,10 +69,11 @@ const breakpointColumns = {
   700: 1
 };
 
-// Hook to dynamically load images from the gallery and recent folders
+// Hook to dynamically load images from different category folders
 function useGalleryImages() {
-  const [recentItems, setRecentItems] = useState<GalleryItem[]>([]);
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [nftItems, setNftItems] = useState<GalleryItem[]>([]);
+  const [memecoinItems, setMemecoinItems] = useState<GalleryItem[]>([]);
+  const [junglebayItems, setJunglebayItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,12 +88,16 @@ function useGalleryImages() {
         
         const data = await response.json();
         
-        if (data.gallery && Array.isArray(data.gallery)) {
-          setGalleryItems(data.gallery);
+        if (data.nft && Array.isArray(data.nft)) {
+          setNftItems(data.nft);
         }
         
-        if (data.recent && Array.isArray(data.recent)) {
-          setRecentItems(data.recent);
+        if (data.memecoin && Array.isArray(data.memecoin)) {
+          setMemecoinItems(data.memecoin);
+        }
+        
+        if (data.junglebay && Array.isArray(data.junglebay)) {
+          setJunglebayItems(data.junglebay);
         }
       } catch (err) {
         console.error('Error fetching images:', err);
@@ -104,12 +110,18 @@ function useGalleryImages() {
     fetchImages();
   }, []);
 
-  return { recentItems, galleryItems, loading, error };
+  return { nftItems, memecoinItems, junglebayItems, loading, error };
 }
 
 const GallerySection = () => {
-  const { recentItems, galleryItems, loading, error } = useGalleryImages();
+  const { nftItems, memecoinItems, junglebayItems, loading, error } = useGalleryImages();
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+  
+  const handleCategoryChange = (category: string) => {
+    console.log('Category changed to:', category);
+    setActiveCategory(category);
+  };
   
   // Close modal when pressing escape key
   useEffect(() => {
@@ -124,16 +136,57 @@ const GallerySection = () => {
     };
   }, []);
 
+  // Gallery item component to avoid repetition
+  const GalleryItem = ({ item, idx }: { item: GalleryItem; idx: number }) => (
+    <motion.div
+      key={item.src + idx}
+      className="mb-8 rounded-lg overflow-hidden shadow-lg backdrop-blur-xl bg-white/10 border border-white/20 hover:border-white/30 transition-all duration-300" 
+      style={glassCardStyle}
+      initial={{ opacity: 0, y: 60, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-100px 0px" }}
+      transition={{ 
+        duration: 0.9,
+        ease: [0.25, 1, 0.5, 1], // Custom cubic bezier for smooth, elegant entry
+        delay: 0.15 * idx, // Slightly longer staggered delay for more pronounced effect
+      }}
+      whileHover={{ scale: 1.03 }}
+    >
+      <div 
+        className="relative w-full h-80 cursor-pointer overflow-hidden rounded-lg"
+        onClick={() => setSelectedImage(item)}
+      >
+        <Image 
+          src={item.src} 
+          alt={item.title} 
+          className="object-cover transition-transform duration-300 hover:scale-110" 
+          fill 
+          sizes="(max-width: 768px) 100vw, 33vw"
+          style={{
+            position: 'absolute',
+            height: '100%',
+            width: '100%',
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            color: 'transparent'
+          }}
+        />
+      </div>
+    </motion.div>
+  );
+
   return (
     <section className="min-h-screen bg-black py-20 px-4 md:px-8 relative overflow-hidden">
       {/* Stars Background - static */}
-      <div className={styles.starsContainer}>
+      <div className={styles.starsContainer} style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
         <StarsField />
       </div>
       
-      <div className="container mx-auto">
+      <div className="container mx-auto relative z-10">
         <motion.h2 
-          className="text-4xl font-bold text-white text-center mb-12 drop-shadow-md"
+          className="text-4xl font-bold text-white text-center mb-8 drop-shadow-md"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-150px 0px" }}
@@ -143,132 +196,153 @@ const GallerySection = () => {
             delay: 0.1
           }}
         >
-          Recent Work
+          Gallery
         </motion.h2>
-        <Masonry
-          breakpointCols={breakpointColumns}
-          className="flex w-auto -ml-4"
-          columnClassName="pl-4 bg-clip-padding"
-        >
-          {loading && (
-            <div className="text-white">Loading recent work...</div>
-          )}
-          {!loading && recentItems.length === 0 && (
-            <div className="text-white">No recent work found. Add images to <code>public/recent</code>.</div>
-          )}
-          {!loading && recentItems.map((item, idx) => (
-            <motion.div
-              key={item.src + idx}
-              className="mb-8 overflow-hidden shadow-lg transition-all duration-300 rounded-lg" 
-              style={glassCardStyle}
-              initial={{ opacity: 0, y: 60, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-100px 0px" }}
-              transition={{ 
-                duration: 0.9,
-                ease: [0.25, 1, 0.5, 1], // Custom cubic bezier for smooth, elegant entry
-                delay: 0.15 * idx, // Slightly longer staggered delay for more pronounced effect
-              }}
-              whileHover={{ scale: 1.03 }}
-            >
-              <div 
-                className="relative w-full h-80 cursor-pointer overflow-hidden rounded-lg"
-                onClick={() => setSelectedImage(item)}
-              >
-                <Image 
-                  src={item.src} 
-                  alt={item.title} 
-                  className="object-cover transition-transform duration-300 hover:scale-110" 
-                  fill 
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  style={{
-                    position: 'absolute',
-                    height: '100%',
-                    width: '100%',
-                    left: 0,
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    color: 'transparent'
-                  }}
-                />
-              </div>
-              
-            </motion.div>
-          ))}
-        </Masonry>
-
-        <motion.h2 
-          className="text-3xl font-bold text-white text-center mb-12 mt-24 drop-shadow-md"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-150px 0px" }}
-          transition={{ 
-            duration: 0.8, 
-            ease: [0.22, 1, 0.36, 1], // Custom ease curve for smooth entry
-            delay: 0.1
-          }}
-        >
-          Past Gallery
-        </motion.h2>
+        
+        {/* Category Navigation */}
+        <div className="flex flex-wrap justify-center gap-4 mb-12 relative z-20">
+          <button 
+            className={`px-6 py-2 rounded-full text-white transition-all cursor-pointer ${activeCategory === 'all' ? 'bg-white/20 border border-white/40' : 'bg-white/10 hover:bg-white/15'}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCategoryChange('all');
+            }}
+            type="button"
+          >
+            All
+          </button>
+          <button 
+            className={`px-6 py-2 rounded-full text-white transition-all cursor-pointer ${activeCategory === 'nft' ? 'bg-white/20 border border-white/40' : 'bg-white/10 hover:bg-white/15'}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCategoryChange('nft');
+            }}
+            type="button"
+          >
+            NFT
+          </button>
+          <button 
+            className={`px-6 py-2 rounded-full text-white transition-all cursor-pointer ${activeCategory === 'memecoin' ? 'bg-white/20 border border-white/40' : 'bg-white/10 hover:bg-white/15'}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCategoryChange('memecoin');
+            }}
+            type="button"
+          >
+            MEMECOIN PROJECT
+          </button>
+          <button 
+            className={`px-6 py-2 rounded-full text-white transition-all cursor-pointer ${activeCategory === 'junglebay' ? 'bg-white/20 border border-white/40' : 'bg-white/10 hover:bg-white/15'}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCategoryChange('junglebay');
+            }}
+            type="button"
+          >
+            JUNGLEBAY
+          </button>
+        </div>
+        
         {loading ? (
           <div className="flex justify-center items-center h-40">
-            <div className="text-white text-xl">Loading gallery images...</div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
           </div>
         ) : error ? (
           <div className="flex justify-center items-center h-40">
             <div className="text-red-400 text-xl">{error}</div>
           </div>
         ) : (
-          <Masonry
-            breakpointCols={breakpointColumns}
-            className="flex w-auto -ml-4"
-            columnClassName="pl-4 bg-clip-padding"
-          >
-            {galleryItems.length === 0 && (
-              <div className="text-white">No gallery images found in the public/gallery directory.</div>
-            )}
-            {galleryItems.map((item, idx) => (
-              <motion.div
-                key={item.src + idx}
-                className="mb-8 rounded-lg overflow-hidden shadow-lg backdrop-blur-xl bg-white/10 border border-white/20 hover:border-white/30 transition-all duration-300" 
-                style={glassCardStyle}
-                initial={{ opacity: 0, y: 60, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-100px 0px" }}
-                transition={{ 
-                  duration: 0.9,
-                  ease: [0.25, 1, 0.5, 1], // Custom cubic bezier for smooth, elegant entry
-                  delay: 0.15 * idx, // Slightly longer staggered delay for more pronounced effect
-                }}
-                whileHover={{ scale: 1.03 }}
-              >
-              <div 
-                className="relative w-full h-80 cursor-pointer overflow-hidden rounded-lg"
-                onClick={() => setSelectedImage(item)}
-              >
-                <Image 
-                  src={item.src} 
-                  alt={item.title} 
-                  className="object-cover transition-transform duration-300 hover:scale-110" 
-                  fill 
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  style={{
-                    position: 'absolute',
-                    height: '100%',
-                    width: '100%',
-                    left: 0,
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    color: 'transparent'
-                  }}
-                />
+          <>
+            {/* NFT Section */}
+            {(activeCategory === 'all' || activeCategory === 'nft') && (
+              <div className="mb-16">
+                {activeCategory === 'all' && (
+                  <motion.h3 
+                    className="text-3xl font-bold text-white text-center mb-8 drop-shadow-md"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px 0px" }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    NFT
+                  </motion.h3>
+                )}
+                
+                <Masonry
+                  breakpointCols={breakpointColumns}
+                  className="flex w-auto -ml-4"
+                  columnClassName="pl-4 bg-clip-padding"
+                >
+                  {nftItems.length === 0 && (
+                    <div className="text-white text-center">No NFT images found. Add images to the public/nft directory.</div>
+                  )}
+                  {nftItems.map((item, idx) => (
+                    <GalleryItem key={item.src + idx} item={item} idx={idx} />
+                  ))}
+                </Masonry>
               </div>
-              
-            </motion.div>
-          ))}
-        </Masonry>
+            )}
+            
+            {/* MEMECOIN PROJECT Section */}
+            {(activeCategory === 'all' || activeCategory === 'memecoin') && (
+              <div className="mb-16">
+                {activeCategory === 'all' && (
+                  <motion.h3 
+                    className="text-3xl font-bold text-white text-center mb-8 drop-shadow-md"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px 0px" }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    MEMECOIN PROJECT
+                  </motion.h3>
+                )}
+                
+                <Masonry
+                  breakpointCols={breakpointColumns}
+                  className="flex w-auto -ml-4"
+                  columnClassName="pl-4 bg-clip-padding"
+                >
+                  {memecoinItems.length === 0 && (
+                    <div className="text-white text-center">No MEMECOIN PROJECT images found. Add images to the public/memecoin_project directory.</div>
+                  )}
+                  {memecoinItems.map((item, idx) => (
+                    <GalleryItem key={item.src + idx} item={item} idx={idx} />
+                  ))}
+                </Masonry>
+              </div>
+            )}
+            
+            {/* JUNGLEBAY Section */}
+            {(activeCategory === 'all' || activeCategory === 'junglebay') && (
+              <div className="mb-16">
+                {activeCategory === 'all' && (
+                  <motion.h3 
+                    className="text-3xl font-bold text-white text-center mb-8 drop-shadow-md"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px 0px" }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    JUNGLEBAY
+                  </motion.h3>
+                )}
+                
+                <Masonry
+                  breakpointCols={breakpointColumns}
+                  className="flex w-auto -ml-4"
+                  columnClassName="pl-4 bg-clip-padding"
+                >
+                  {junglebayItems.length === 0 && (
+                    <div className="text-white text-center">No JUNGLEBAY images found. Add images to the public/junglebay directory.</div>
+                  )}
+                  {junglebayItems.map((item, idx) => (
+                    <GalleryItem key={item.src + idx} item={item} idx={idx} />
+                  ))}
+                </Masonry>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -310,13 +384,13 @@ const GallerySection = () => {
                     }}
                   />
                 </div>
-              <button 
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
-                onClick={() => setSelectedImage(null)}
-              >
-                ✕
-              </button>
-            </div>
+                <button 
+                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                  onClick={() => setSelectedImage(null)}
+                >
+                  ✕
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

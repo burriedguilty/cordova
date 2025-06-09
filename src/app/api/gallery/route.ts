@@ -8,49 +8,92 @@ interface GalleryItem {
   title: string;
   description?: string;
   link?: string;
+  category?: string;
 }
 
 export async function GET() {
   try {
-    // Define the paths to the gallery and recent directories
-    const galleryPath = path.join(process.cwd(), 'public', 'gallery');
-    const recentPath = path.join(process.cwd(), 'public', 'recent');
+    // Define the paths to the category directories
+    const nftPath = path.join(process.cwd(), 'public', 'nft');
+    const memecoinPath = path.join(process.cwd(), 'public', 'memecoin_project');
+    const junglebayPath = path.join(process.cwd(), 'public', 'junglebay');
+    const galleryPath = path.join(process.cwd(), 'public', 'gallery'); // Keep original gallery for backward compatibility
     
     // Create directories if they don't exist
+    ensureDirectoryExists(nftPath);
+    ensureDirectoryExists(memecoinPath);
+    ensureDirectoryExists(junglebayPath);
     ensureDirectoryExists(galleryPath);
-    ensureDirectoryExists(recentPath);
     
-    // Read the gallery directory
+    // Read the NFT directory
+    let nftFiles: GalleryItem[] = [];
+    try {
+      nftFiles = fs.readdirSync(nftPath)
+        .filter(file => /\.(jpe?g|png)$/i.test(file))
+        .map(file => ({
+          src: `/nft/${file}`,
+          title: formatTitle(file),
+          category: 'NFT'
+        }));
+    } catch (err) {
+      console.warn('Error reading NFT directory:', err);
+      nftFiles = [];
+    }
+    
+    // Read the MEMECOIN PROJECT directory
+    let memecoinFiles: GalleryItem[] = [];
+    try {
+      memecoinFiles = fs.readdirSync(memecoinPath)
+        .filter(file => /\.(jpe?g|png)$/i.test(file))
+        .map(file => ({
+          src: `/memecoin_project/${file}`,
+          title: formatTitle(file),
+          category: 'MEMECOIN PROJECT'
+        }));
+    } catch (err) {
+      console.warn('Error reading MEMECOIN PROJECT directory:', err);
+      memecoinFiles = [];
+    }
+    
+    // Read the JUNGLEBAY directory
+    let junglebayFiles: GalleryItem[] = [];
+    try {
+      junglebayFiles = fs.readdirSync(junglebayPath)
+        .filter(file => /\.(jpe?g|png)$/i.test(file))
+        .map(file => ({
+          src: `/junglebay/${file}`,
+          title: formatTitle(file),
+          category: 'JUNGLEBAY'
+        }));
+    } catch (err) {
+      console.warn('Error reading JUNGLEBAY directory:', err);
+      junglebayFiles = [];
+    }
+    
+    // Read the original gallery directory for backward compatibility
     let galleryFiles: GalleryItem[] = [];
     try {
       galleryFiles = fs.readdirSync(galleryPath)
         .filter(file => /\.(jpe?g|png)$/i.test(file))
         .map(file => ({
           src: `/gallery/${file}`,
-          title: formatTitle(file)
+          title: formatTitle(file),
+          category: 'Gallery'
         }));
     } catch (err) {
       console.warn('Error reading gallery directory:', err);
       galleryFiles = [];
     }
     
-    // Read the recent directory
-    let recentFiles: GalleryItem[] = [];
-    try {
-      recentFiles = fs.readdirSync(recentPath)
-        .filter(file => /\.(jpe?g|png)$/i.test(file))
-        .map(file => ({
-          src: `/recent/${file}`,
-          title: formatTitle(file)
-        }));
-    } catch (err) {
-      console.warn('Error reading recent directory:', err);
-      recentFiles = [];
-    }
+    // Combine all files into a single array
+    const allFiles = [...nftFiles, ...memecoinFiles, ...junglebayFiles, ...galleryFiles];
     
     return NextResponse.json({
+      nft: nftFiles,
+      memecoin: memecoinFiles,
+      junglebay: junglebayFiles,
       gallery: galleryFiles,
-      recent: recentFiles
+      all: allFiles
     });
   } catch (error) {
     console.error('Error reading image directories:', error);
