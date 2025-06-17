@@ -1,0 +1,37 @@
+.glareContainer {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.glareEffect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.2) 40%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.2) 60%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.glareContainer:hover .glareEffect {
+  animation: glare 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes glare {
+  0% {
+    transform: translateX(-100%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(100%) rotate(0deg);
+  }
+}

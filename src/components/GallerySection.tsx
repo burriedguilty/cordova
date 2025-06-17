@@ -1,73 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Masonry from 'react-masonry-css';
 import Image from 'next/image';
-import styles from "../styles/RetroGrid.module.css";
+import GalleryItemComponent, { GalleryItem } from './GalleryItem';
+import dynamic from 'next/dynamic';
 
-// Define GalleryItem interface
-export interface GalleryItem {
-  src: string;
-  title: string;
-  description?: string;
-  link?: string;
-  category?: string;
-}
+// Import Particles component dynamically with no SSR
+const Particles = dynamic(() => import('./Particles'), { ssr: false });
 
-// Glassmorphism styles for consistent application
-const glassCardStyle = {
-  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.25)',
-  backdropFilter: 'blur(10px)',
-  WebkitBackdropFilter: 'blur(10px)'
-};
-
-// StarsField component for background animation
-const StarsField: React.FC = () => {
-  const [stars, setStars] = useState<React.ReactNode[]>([]);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    // Only generate stars on the client to avoid hydration errors
-    const starElements = Array.from({ length: 100 }).map((_, i) => {
-      const size = Math.random() * 3 + 1;
-      const left = Math.random() * 100;
-      const top = Math.random() * 100;
-      const duration = Math.random() * 3 + 2;
-      const delay = Math.random() * 5;
-      return (
-        <div
-          key={i}
-          className={styles.star}
-          style={{
-            width: `${size}px`,
-            height: `${size}px`,
-            left: `${left}%`,
-            top: `${top}%`,
-            '--duration': `${duration}s`,
-            '--delay': `${delay}s`,
-            opacity: top > 70 ? 1 : 0.3 + (top / 100) * 0.7
-          } as React.CSSProperties}
-        />
-      );
-    });
-    setStars(starElements);
-  }, [mounted]);
-
-  if (!mounted) return null;
-  return <div className={styles.stars}>{stars}</div>;
-};
-
+// Breakpoints for masonry layout
 const breakpointColumns = {
   default: 3,
   1100: 2,
   700: 1
 };
+
+
 
 // Hook to dynamically load images from different category folders
 function useGalleryImages() {
@@ -136,52 +86,26 @@ const GallerySection = () => {
     };
   }, []);
 
-  // Gallery item component to avoid repetition
-  const GalleryItem = ({ item, idx }: { item: GalleryItem; idx: number }) => (
-    <motion.div
-      key={item.src + idx}
-      className="mb-8 rounded-lg overflow-hidden shadow-lg backdrop-blur-xl bg-white/10 border border-white/20 hover:border-white/30 transition-all duration-300" 
-      style={glassCardStyle}
-      initial={{ opacity: 0, y: 60, scale: 0.95 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-100px 0px" }}
-      transition={{ 
-        duration: 0.9,
-        ease: [0.25, 1, 0.5, 1], // Custom cubic bezier for smooth, elegant entry
-        delay: 0.15 * idx, // Slightly longer staggered delay for more pronounced effect
-      }}
-      whileHover={{ scale: 1.03 }}
-    >
-      <div 
-        className="relative w-full h-80 cursor-pointer overflow-hidden rounded-lg"
-        onClick={() => setSelectedImage(item)}
-      >
-        <Image 
-          src={item.src} 
-          alt={item.title} 
-          className="object-cover transition-transform duration-300 hover:scale-110" 
-          fill 
-          sizes="(max-width: 768px) 100vw, 33vw"
-          style={{
-            position: 'absolute',
-            height: '100%',
-            width: '100%',
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-            color: 'transparent'
-          }}
-        />
-      </div>
-    </motion.div>
-  );
+
 
   return (
     <section className="min-h-screen bg-black py-20 px-4 md:px-8 relative overflow-hidden">
-      {/* Stars Background - static */}
-      <div className={styles.starsContainer} style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
-        <StarsField />
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/20 to-black opacity-80 z-0" />
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        {typeof window !== 'undefined' && (
+          <Suspense fallback={null}>
+            <Particles
+              particleColors={['#00ffaa', '#0088ff', '#ffffff']} 
+              particleCount={200}
+              particleSpread={15}
+              speed={0.2}
+              particleBaseSize={120}
+              moveParticlesOnHover={true}
+              alphaParticles={true}
+              disableRotation={false}
+            />
+          </Suspense>
+        )}
       </div>
       
       <div className="container mx-auto relative z-10">
@@ -277,7 +201,7 @@ const GallerySection = () => {
                     <div className="text-white text-center">No NFT images found. Add images to the public/nft directory.</div>
                   )}
                   {nftItems.map((item, idx) => (
-                    <GalleryItem key={item.src + idx} item={item} idx={idx} />
+                    <GalleryItemComponent key={item.src + idx} item={item} idx={idx} onImageClick={setSelectedImage} />
                   ))}
                 </Masonry>
               </div>
@@ -307,7 +231,7 @@ const GallerySection = () => {
                     <div className="text-white text-center">No MEMECOIN PROJECT images found. Add images to the public/memecoin_project directory.</div>
                   )}
                   {memecoinItems.map((item, idx) => (
-                    <GalleryItem key={item.src + idx} item={item} idx={idx} />
+                    <GalleryItemComponent key={item.src + idx} item={item} idx={idx} onImageClick={setSelectedImage} />
                   ))}
                 </Masonry>
               </div>
@@ -337,7 +261,7 @@ const GallerySection = () => {
                     <div className="text-white text-center">No JUNGLEBAY images found. Add images to the public/junglebay directory.</div>
                   )}
                   {junglebayItems.map((item, idx) => (
-                    <GalleryItem key={item.src + idx} item={item} idx={idx} />
+                    <GalleryItemComponent key={item.src + idx} item={item} idx={idx} onImageClick={setSelectedImage} />
                   ))}
                 </Masonry>
               </div>
